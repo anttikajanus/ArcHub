@@ -1,0 +1,141 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="ReaderForArcGISNews.MainView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro"
+    xmlns:converters="clr-namespace:ReaderForArcGISNews.Converters"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls" mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="728"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    shell:SystemTray.IsVisible="{Binding IsLoading}"
+    >
+
+    <shell:SystemTray.ProgressIndicator>
+        <shell:ProgressIndicator IsIndeterminate="{Binding IsLoading}" 
+                                 IsVisible="{Binding IsLoading}"
+                                 Text="Loading feed..."/>
+    </shell:SystemTray.ProgressIndicator>
+
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:SlideTransition Mode="SlideRightFadeOut" />
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:SlideTransition Mode="SlideLeftFadeOut" />
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+
+
+    <phone:PhoneApplicationPage.Resources>
+        <converters:RssTextTrimContinousConverter x:Key="rssTrimmer"></converters:RssTextTrimContinousConverter>
+        <cal:BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+ 
+        
+        <DataTemplate x:Name="RssFeedItemDataTemplate">
+            <StackPanel Margin="0,0,0,15" cal:Message.Attach="[Tap]=[Action NavigateToFeedItem($DataContext)]"
+                        toolkit:TiltEffect.IsTiltEnabled="True">
+                <!-- Feed title -->
+                <TextBlock Text="{Binding Title, Converter={StaticResource rssTrimmer}, ConverterParameter=40}" 
+                           Style="{StaticResource PhoneTextLargeStyle}" Foreground="{StaticResource PhoneAccentBrush}" 
+                           Margin="12,0,0,0"/>
+              
+                <!-- Feed summary -->
+                <TextBlock Text="{Binding Description, Converter={StaticResource rssTrimmer}, ConverterParameter=180}" 
+                           TextWrapping="Wrap" Margin="12,0,0,0" />
+
+                <!-- Feed time -->
+                <TextBlock Text="{Binding PublishDate}" 
+                           Foreground="{StaticResource PhoneSubtleBrush}" Margin="12,0,0,0" />
+            </StackPanel>
+        </DataTemplate>
+
+
+        <DataTemplate x:Name="RssFeedByCategoryItemDataTemplate">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,15" cal:Message.Attach="[Tap]=[Action NavigateToCategoryFeed($DataContext)]"
+                        toolkit:TiltEffect.IsTiltEnabled="True">
+                <Grid>
+                    <Rectangle Width="100" MinHeight="100" Fill="{StaticResource PhoneAccentBrush}" Margin="12,0,9,0"></Rectangle>
+                    <Image Height="80" Width="80" Margin="12,0,9,0" CacheMode="BitmapCache" >
+                        <Image.Source>
+                            <BitmapImage UriSource="/Resources/Images/RssFeed.png" CreateOptions="BackgroundCreation"/>
+                        </Image.Source>
+                    </Image>
+                </Grid>
+                <StackPanel Width="311" Background="#D8837E83">
+                    <TextBlock Text="{Binding Title}" TextWrapping="Wrap" Style="{StaticResource PhoneTextLargeStyle}"/>
+                    <TextBlock Text="{Binding SubTitle}" TextWrapping="Wrap" Style="{StaticResource PhoneTextLargeStyle}"/>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+           
+
+    </phone:PhoneApplicationPage.Resources>
+
+    <Grid Background="Transparent">
+        <controls:Pivot Title="ArcHub - Blogs">
+            <!-- Blog posts-->
+            <controls:PivotItem Header="What's new">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <ListBox Grid.Row="1"
+                            ItemTemplate="{StaticResource RssFeedItemDataTemplate}" 
+                            ItemsSource="{Binding RssFeed.Items}">
+                    </ListBox>
+                    <Grid>
+                        <TextBlock Text="Feed offline" 
+                                   FontSize="42" HorizontalAlignment="Center"
+                                   Visibility="{Binding IsOffline, Converter={StaticResource BoolToVisibility}}"
+                                   />    
+                    </Grid>
+                </Grid>
+            </controls:PivotItem>
+                    
+            <!-- Blogs by category -->
+            <controls:PivotItem Header="Categories">
+                <ListBox ItemTemplate="{StaticResource RssFeedByCategoryItemDataTemplate}" 
+                     ItemsSource="{Binding FeedCategories}">
+                </ListBox>
+            </controls:PivotItem>
+
+            <!-- Video posts-->
+            <!--<controls:PivotItem Header="Videos">
+                <Grid>
+                    <ListBox
+                            ItemTemplate="{StaticResource RssFeedItemDataTemplate}" 
+                            ItemsSource="{Binding VideoFeed.Items}">
+                    </ListBox>
+                    <Grid>
+                        <TextBlock Text="Content unavailable..." 
+                                   FontSize="42"
+                                   Visibility="{Binding IsOffline, Converter={StaticResource BoolToVisibility}}"
+                                   />
+                    </Grid>
+                </Grid>
+            </controls:PivotItem>-->
+
+        </controls:Pivot>
+    </Grid>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" Mode="Minimized" Opacity="1">
+            <shell:ApplicationBar.Buttons>
+                <cal:AppBarButton IconUri="/Resources/Images/refresh.png" Text="Refresh" Message="RefreshFeed" />
+                <cal:AppBarButton IconUri="/Resources/Images/info.png" Text="About" Message="About" />
+            </shell:ApplicationBar.Buttons>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+
+</phone:PhoneApplicationPage>

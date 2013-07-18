@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Deployment xmlns="http://schemas.microsoft.com/windowsphone/2009/deployment" AppPlatformVersion="7.1">
+  <App xmlns="" ProductID="{61c1577f-c9fe-4eab-b403-bf33fde27a9a}" Title="ArcHub" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="antti.kajanus" Description="Reader for ArcGIS world." Publisher="antti.kajanus">
+    <IconPath IsRelative="true" IsResource="false">ArcHub_62x62.png</IconPath>
+    <Capabilities>
+      <Capability Name="ID_CAP_NETWORKING" />
+      <Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />
+    </Capabilities>
+    <Tasks>
+      <DefaultTask Name="_default" NavigationPage="MainView.xaml" />
+    </Tasks>
+    <Tokens>
+      <PrimaryToken TokenID="ReaderForArcGISNewsToken" TaskName="_default">
+        <TemplateType5>
+          <BackgroundImageURI IsRelative="true" IsResource="false">ApplicationIcon.png</BackgroundImageURI>
+          <Count>0</Count>
+          <Title>ArcHub</Title>
+        </TemplateType5>
+      </PrimaryToken>
+    </Tokens>
+  </App>
+</Deployment>
